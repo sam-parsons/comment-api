@@ -13,6 +13,11 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
+// test route
+app.get("/", (req, res) => {
+  res.send("this is the server");
+});
+
 //use routes
 app.use("/api/users", users);
 
