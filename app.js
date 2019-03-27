@@ -15,9 +15,22 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
+// mongoose set up
+mongoose.connect(
+  "mongodb://username:PASSWORD1@ds125616.mlab.com:25616/heroku_fvh448l3"
+);
+mongoose.connection.once("open", () => {
+  console.log("connected to database");
+});
+
 // test route
 app.get("/", (req, res) => {
   res.send("this is the server");
+});
+
+// test post route
+app.post("/send", (req, res) => {
+  res.json(req.body);
 });
 
 //use routes
