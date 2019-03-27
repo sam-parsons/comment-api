@@ -15,7 +15,44 @@ const passport = require("passport");
 // @route GET api/users/test
 // @desc Tests users route
 // @access Public
-router.get("/test", (req, res) => res.json({ message: "users works" }));
+router.get("/test", (req, res) =>
+  res.json({
+    user: "sample user",
+    videos: [
+      {
+        videoID: "kjh5439dfdk4j5jh",
+        comments: [
+          {
+            commentID: "lkjh543908dhjklh34",
+            commentCreated: "August 04, 2018",
+            commentTime: "2:31",
+            commentContent:
+              "this flute solo sucks and you are aweful, admit you have asthma and quit"
+          },
+          {
+            commentID: "98745kgdjkhtds",
+            commentCreated: "August 21, 2018",
+            commentTime: "2:11",
+            commentContent:
+              "yeah, more vibrato right otherwise I'm going to fall asleep"
+          }
+        ]
+      },
+      {
+        videoID: "kjh459djklh453452",
+        comments: [
+          {
+            commentID: "mbadfiu794323948723",
+            commentCreated: "August 24, 2018",
+            commentTime: "0:31",
+            commentContent:
+              "yeah maybe you should just skip the repeats, I've got a movie to catch.  Have you ever seen Dune?"
+          }
+        ]
+      }
+    ]
+  })
+);
 
 // @route GET api/users/register
 // @desc Register user
