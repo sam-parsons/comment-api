@@ -19,7 +19,7 @@ app.get("/", (req, res) => {
 });
 
 //use routes
-// app.use("/api/users", users);
+app.use("/api/users", users);
 
 const port = process.env.PORT || 5001;
 
