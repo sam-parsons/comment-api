@@ -23,6 +23,12 @@ mongoose.connection.once("open", () => {
   console.log("connected to database");
 });
 
+// passport middleware
+app.use(passport.initialize());
+
+// passport config
+require("./config/passport")(passport);
+
 // test route
 app.get("/", (req, res) => {
   res.send("this is the server");

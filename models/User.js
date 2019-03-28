@@ -11,6 +11,29 @@ const UserSchema = new Schema({
     type: String,
     required: true
   },
+  videos: [
+    {
+      videoID: {
+        type: String
+      },
+      comments: [
+        {
+          commentCreated: {
+            type: Date,
+            default: Date.now
+          },
+          timestamp: {
+            type: String,
+            required: true
+          },
+          message: {
+            type: String,
+            required: true
+          }
+        }
+      ]
+    }
+  ],
   date: {
     type: Date,
     default: Date.now
