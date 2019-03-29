@@ -233,7 +233,7 @@ router.post(
   }
 );
 
-// @route DELETE api/users/comment/:commentID
+// @route DELETE api/users/comment/:videoID/:commentID
 // @desc delete comment on video
 // @access Private
 router.delete(
@@ -243,44 +243,60 @@ router.delete(
     const errors = {};
 
     User.findOne({ email: req.user.email }).then(user => {
-      //   console.log(user.videos[0].id);
       console.log(req.user);
-      //   const videos = user.videos;
-      const video = user.videos.filter(video => {
-        return req.params.videoID === video.id;
-      });
-      console.log(user.videos.id(req.params.videoID));
-      //   parent.children.id(_id).remove();
-
-      //   const comment = video[0].comments.filter(comment => {
-      //     return req.params.commentID === comment.id;
-      //   });
-      //   console.log(comment);
-      //   user.v;
-      // .then(() => res.json({ success: true }))
-      // .catch(err =>
-      //   res.status(404).json({ nocommentfound: "no comment found" })
-      // );
-      //   user.videos.forEach(video => {
-      //     if (req.body.videoID === video.videoID) {
-      //       video.comments.push({
-      //         timestamp: req.body.timestamp,
-      //         message: req.body.message
-      //       });
-      //     }
-      //   });
-
-      for (let i = 0; i < user.videos.length; i++) {
-        if (user.videos[i].comments) {
-          let comment;
-          for (let j = 0; j < user.videos[i].comments.length; j++) {
-            if (user.videos[i].comments[j].id == req.params.id)
-              console.log("catch");
-          }
-        } else {
-          errors.nocomments = "there are no comments to delete";
+      const video = user.videos.forEach(video => {
+        if (req.params.videoID === video.videoID) {
+          console.log("this one");
+          console.log(video.comments);
+          const comments = video.comments.filter(comment => {
+            if (req.params.commentID !== comment.id) {
+              console.log("inner loop");
+              return comment;
+            }
+          });
+          console.log(comments);
+          video.comments = comments;
+          console.log(video);
+          user.save();
+          res.json(user);
         }
-      }
+      });
+    });
+  }
+);
+
+// @route DELETE api/users/comment/:videoID/:commentID
+// @desc delete comment on video
+// @access Private
+router.delete(
+  "/video/:videoID",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    const errors = {};
+
+    User.findOne({ email: req.user.email }).then(user => {
+      console.log(req.user);
+      const videos = user.videos.filter(video => {
+        if (req.params.videoID !== video.videoID) {
+          return video;
+        }
+      });
+      user.videos = videos;
+      user.save();
+      res.json(user);
+    });
+  }
+);
+
+// @route DELETE api/users/
+// @desc delete user
+// @access Private
+router.delete(
+  "/:userID",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    User.deleteOne({ _id: req.params.userID }, function(err) {
+      if (err) return handleError(err);
     });
     res.status(200).json({ success: true });
   }
