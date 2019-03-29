@@ -6,8 +6,6 @@ const bodyParser = require("body-parser");
 const passport = require("passport");
 
 const users = require("./routes/api/users");
-// const profile = require("./routes/api/profile");
-// const posts = require("./routes/api/posts");
 
 const app = express();
 
@@ -32,11 +30,6 @@ require("./config/passport")(passport);
 // test route
 app.get("/", (req, res) => {
   res.send("this is the server");
-});
-
-// test post route
-app.post("/send", (req, res) => {
-  res.json(req.body);
 });
 
 //use routes
