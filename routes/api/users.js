@@ -19,39 +19,7 @@ const User = require("../../models/User");
 // @access Public
 router.get("/test", (req, res) =>
   res.json({
-    user: "sample user",
-    videos: [
-      {
-        videoID: "kjh5439dfdk4j5jh",
-        comments: [
-          {
-            commentID: "lkjh543908dhjklh34",
-            commentCreated: "August 04, 2018",
-            commentTime: "2:31",
-            commentContent: "this flute solo sucks and you are aweful"
-          },
-          {
-            commentID: "98745kgdjkhtds",
-            commentCreated: "August 21, 2018",
-            commentTime: "2:11",
-            commentContent:
-              "yeah, more vibrato right otherwise I'm going to fall asleep"
-          }
-        ]
-      },
-      {
-        videoID: "kjh459djklh453452",
-        comments: [
-          {
-            commentID: "mbadfiu794323948723",
-            commentCreated: "August 24, 2018",
-            commentTime: "0:31",
-            commentContent:
-              "yeah maybe you should just skip the repeats, I've got a movie to catch.  Have you ever seen Dune?"
-          }
-        ]
-      }
-    ]
+    user: "sample user"
   })
 );
 
@@ -143,19 +111,109 @@ router.get(
 
 // @route GET api/users/all
 // @desc Return all users
-// @access Public
-router.get("/all", (req, res) => {
-  User.find()
-    // .populate("user", ["email", "password"])
-    .then(profiles => {
-      if (!profiles) {
-        errors.noprofiles = "there are no profiles";
-        return res.status(404).json(errors);
-      }
-      res.json(profiles);
-    })
-    .catch(err => res.status(404).json({ profiles: "there are no profiles" }));
-});
+// @access Private
+router.get(
+  "/all",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    User.find()
+      // .populate("user", ["email", "password"])
+      .then(profiles => {
+        if (!profiles) {
+          errors.noprofiles = "there are no profiles";
+          return res.status(404).json(errors);
+        }
+        res.json(profiles);
+      })
+      .catch(err =>
+        res.status(404).json({ profiles: "there are no profiles" })
+      );
+  }
+);
+
+// @route GET api/users/video/all
+// @desc Return all videos of a user
+// @access Private
+router.get(
+  "/video/all",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    const email = req.user.email;
+    const errors = {};
+
+    User.findOne({ email })
+      .then(user => {
+        res.json(user.videos);
+      })
+      .catch(err => res.json(err));
+  }
+);
+
+// @route GET api/users/video/:videoID
+// @desc Return one video by ID
+// @access Private
+router.get(
+  "/video/:videoID",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    const email = req.user.email;
+    const videoID = req.params.videoID;
+    const errors = {};
+
+    User.findOne({ email })
+      .then(user => {
+        const video = user.videos.filter(video => {
+          return video.id === videoID;
+        });
+        res.json(video);
+      })
+      .catch(err => res.json(err));
+  }
+);
+
+// @route GET api/users/comment/:videoID/:commentID
+// @desc Return one comment by IDs
+// @access Private
+router.get(
+  "/video/:videoID",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    const email = req.user.email;
+    const videoID = req.params.videoID;
+    const errors = {};
+
+    User.findOne({ email })
+      .then(user => {
+        const video = user.videos.filter(video => {
+          return video.id === videoID;
+        });
+        res.json(video);
+      })
+      .catch(err => res.json(err));
+  }
+);
+
+// @route GET api/users/comment/:videoID/
+// @desc Return all comments on a video
+// @access Private
+router.get(
+  "/comment/:videoID",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    const email = req.user.email;
+    const videoID = req.params.videoID;
+    const errors = {};
+
+    User.findOne({ email })
+      .then(user => {
+        const video = user.videos.filter(video => {
+          return video.id === videoID;
+        });
+        res.json(video[0].comments);
+      })
+      .catch(err => res.json(err));
+  }
+);
 
 // @route POST api/users/video
 // @desc add video to user
