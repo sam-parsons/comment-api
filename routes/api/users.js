@@ -15,10 +15,9 @@ const validateCommentInput = require("../../validation/comment");
 const User = require("../../models/User");
 
 // TO-DO
-// - use bcrypt to encrupt passwords
-// - make sure proper error handling is on all routes
 // - PUT/update routes
-// - refactor everything
+// - refactoring
+// - error handling on DELETE routes
 
 // @route GET api/users/test
 // @desc Tests users route
@@ -36,6 +35,7 @@ router.post("/register", (req, res) => {
   const { errors, isValid } = validateRegisterInput(req.body);
 
   const email = req.body.email;
+  const password = req.body.password;
 
   //   check validation
   if (!isValid) {
@@ -48,8 +48,8 @@ router.post("/register", (req, res) => {
       return res.status(400).json(errors);
     } else {
       const newUser = new User({
-        email: req.body.email,
-        password: req.body.password
+        email,
+        password
       });
 
       bcrypt.genSalt(10, (err, salt) => {
@@ -142,7 +142,6 @@ router.get(
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     User.find()
-      // .populate("user", ["email", "password"])
       .then(users => {
         if (!users) {
           errors.nousers = "there are no users";
@@ -181,7 +180,6 @@ router.get(
   (req, res) => {
     const email = req.user.email;
     const videoID = req.params.videoID;
-    console.log(videoID);
     const errors = {};
 
     User.findOne({ email })
@@ -271,14 +269,14 @@ router.post(
         }
 
         user.videos.push({
-          videoID: req.body.videoID
+          videoTag: req.body.videoTag
         });
         user.save();
 
         res.json({
           id: user.id,
           email: user.email,
-          videoID: user.videos[user.videos.length - 1].videoID
+          videoTag: user.videos[user.videos.length - 1].videoTag
         });
       })
       .catch(err => res.status(err));
@@ -381,7 +379,6 @@ router.delete(
   }
 );
 
-// ERROR HANDLING!
 // @route DELETE api/users/
 // @desc delete user
 // @access Private

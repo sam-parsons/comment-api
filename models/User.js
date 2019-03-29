@@ -13,7 +13,7 @@ const UserSchema = new Schema({
   },
   videos: [
     {
-      videoID: {
+      videoTag: {
         type: String
       },
       comments: [

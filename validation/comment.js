@@ -8,9 +8,6 @@ module.exports = function validateCommentInput(data) {
   data.timestamp = !isEmpty(data.timestamp) ? data.timestamp : "";
   data.message = !isEmpty(data.message) ? data.message : "";
 
-  if (!Validator.isLength(data.videoID, { min: 2, max: 4 })) {
-    errors.videoID = "videoID must be between 2 and 4 characters";
-  }
   if (Validator.isEmpty(data.videoID)) {
     errors.videoID = "videoID required";
   }

@@ -1,5 +1,3 @@
-// push to both heroku and origin
-
 const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
@@ -15,7 +13,10 @@ app.use(bodyParser.json());
 
 // mongoose set up
 mongoose.connect(
-  "mongodb://username:PASSWORD1@ds125616.mlab.com:25616/heroku_fvh448l3"
+  "mongodb://username:PASSWORD1@ds125616.mlab.com:25616/heroku_fvh448l3",
+  {
+    useNewUrlParser: true
+  }
 );
 mongoose.connection.once("open", () => {
   console.log("connected to database");
