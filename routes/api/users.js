@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-// const bcrypt = require("bcrypt");
+const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const keys = require("../../config/keys");
 const passport = require("passport");
@@ -51,12 +51,17 @@ router.post("/register", (req, res) => {
         email: req.body.email,
         password: req.body.password
       });
-      newUser
-        .save()
-        .then(user => res.json(user))
-        .catch(err => console.log(err));
 
-      //   bcrypt
+      bcrypt.genSalt(10, (err, salt) => {
+        bcrypt.hash(newUser.password, salt, (err, hash) => {
+          if (err) throw err;
+          newUser.password = hash;
+          newUser
+            .save()
+            .then(user => res.json(user))
+            .catch(err => console.log(err));
+        });
+      });
     }
   });
 });
@@ -83,28 +88,33 @@ router.post("/login", (req, res) => {
         return res.status(404).json(errors);
       }
 
-      if (password == user.password) {
-        const payload = {
-          id: user.id,
-          email: user.email
-        }; // create jwt payload
+      // check password
+      bcrypt.compare(password, user.password).then(isMatched => {
+        if (isMatched) {
+          // user matched
 
-        // sign token
-        jwt.sign(
-          payload,
-          keys.secretOrKey,
-          { expiresIn: 3600 },
-          (err, token) => {
-            res.json({
-              success: true,
-              token: "Bearer " + token
-            });
-          }
-        );
-      } else {
-        errors.password = "password incorrect";
-        return res.status(400).json(errors);
-      }
+          const payload = {
+            id: user.id,
+            email: user.email
+          }; // create jwt payload
+
+          // sign token
+          jwt.sign(
+            payload,
+            keys.secretOrKey,
+            { expiresIn: 3600 },
+            (err, token) => {
+              res.json({
+                success: true,
+                token: "Bearer " + token
+              });
+            }
+          );
+        } else {
+          errors.password = "password incorrect";
+          return res.status(400).json(errors);
+        }
+      });
     })
     .catch(err => res.status(404).json({ usernotfound: "user not found" }));
 });
@@ -371,6 +381,7 @@ router.delete(
   }
 );
 
+// ERROR HANDLING!
 // @route DELETE api/users/
 // @desc delete user
 // @access Private
@@ -380,7 +391,7 @@ router.delete(
   (req, res) => {
     User.deleteOne({ _id: req.params.userID }, function(err) {
       if (err) return handleError(err);
-    });
+    }).catch(err => res.json(err));
     res.status(200).json({ success: true });
   }
 );
