@@ -10,14 +10,13 @@ const validateRegisterInput = require("../../validation/register");
 const validateLoginInput = require("../../validation/login");
 const validateVideoInput = require("../../validation/video");
 const validateCommentInput = require("../../validation/comment");
+const validateCommentUpdateInput = require("../../validation/comment-update");
 
 // load user model
 const User = require("../../models/User");
 
 // TO-DO
 // - PUT/update routes
-// - refactoring
-// - error handling on DELETE routes
 
 // @route GET api/users/test
 // @desc Tests users route
@@ -358,13 +357,11 @@ router.delete(
           errors.nouser = "user doesn't exist";
           return res.status(404).json(errors);
         }
-        const video = user.videos.forEach(video => {
+        user.videos.forEach(video => {
           if (videoID === video.id) {
-            const comments = video.comments.filter(comment => {
-              if (commentID !== comment.id) {
-                return comment;
-              }
-            });
+            const comments = video.comments.filter(
+              comment => commentID !== comment.id
+            );
             video.comments = comments;
             user.save();
             res.json(user);
@@ -375,8 +372,8 @@ router.delete(
   }
 );
 
-// @route DELETE api/users/comment/:videoID/:commentID
-// @desc delete comment on video
+// @route DELETE api/users/video/:videoID/
+// @desc delete video by ID
 // @access Private
 router.delete(
   "/video/:videoID",
@@ -392,11 +389,7 @@ router.delete(
           errors.nouser = "user doesn't exist";
           return res.status(404).json(errors);
         }
-        const videos = user.videos.filter(video => {
-          if (videoID !== video.id) {
-            return video;
-          }
-        });
+        const videos = user.videos.filter(video => videoID !== video.id);
         user.videos = videos;
         user.save();
         res.json(user);
@@ -416,6 +409,46 @@ router.delete(
       if (err) return handleError(err);
     }).catch(err => res.json(err));
     res.status(200).json({ success: true });
+  }
+);
+
+// @route PUT api/users/comment/:videoID/:commentID
+// @desc updating message property of comment by IDs
+// @access Private
+router.put(
+  "/comment/:videoID/:commentID",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    const { errors, isValid } = validateCommentUpdateInput(req.body);
+
+    // check validation
+    if (!isValid) {
+      return res.status(400).json(errors);
+    }
+
+    const email = req.user.email;
+    const videoID = req.params.videoID;
+    const commentID = req.params.commentID;
+    const message = req.body.message;
+
+    User.findOne({ email })
+      .then(user => {
+        if (!user) {
+          errors.nouser = "user doesn't exist";
+          return res.status(404).json(errors);
+        }
+        user.videos.forEach(video => {
+          if (videoID === video.id) {
+            const comment = video.comments.filter(
+              comment => commentID === comment.id
+            );
+            comment[0].message = message;
+            user.save();
+            res.json(user);
+          }
+        });
+      })
+      .catch(err => res.json(err));
   }
 );
 
