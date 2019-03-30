@@ -141,6 +141,7 @@ router.get(
   "/all",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
+    const errors = {};
     User.find()
       .then(users => {
         if (!users) {
@@ -165,6 +166,10 @@ router.get(
 
     User.findOne({ email })
       .then(user => {
+        if (!user) {
+          errors.nouser = "user doesn't exist";
+          return res.status(404).json(errors);
+        }
         res.json(user.videos);
       })
       .catch(err => res.json(err));
@@ -184,6 +189,10 @@ router.get(
 
     User.findOne({ email })
       .then(user => {
+        if (!user) {
+          errors.nouser = "user doesn't exist";
+          return res.status(404).json(errors);
+        }
         const video = user.videos.filter(video => {
           return video.id === videoID;
         });
@@ -207,6 +216,10 @@ router.get(
 
     User.findOne({ email })
       .then(user => {
+        if (!user) {
+          errors.nouser = "user doesn't exist";
+          return res.status(404).json(errors);
+        }
         const video = user.videos.filter(video => {
           return video.id === videoID;
         });
@@ -233,6 +246,10 @@ router.get(
 
     User.findOne({ email })
       .then(user => {
+        if (!user) {
+          errors.nouser = "user doesn't exist";
+          return res.status(404).json(errors);
+        }
         const video = user.videos.filter(video => {
           return video.id === videoID;
         });
@@ -294,7 +311,6 @@ router.post(
 
     // check validation
     if (!isValid) {
-      // return any errors with 400 status
       return res.status(400).json(errors);
     }
 
@@ -304,6 +320,10 @@ router.post(
     // find user by email
     User.findOne({ email })
       .then(user => {
+        if (!user) {
+          errors.nouser = "user doesn't exist";
+          return res.status(404).json(errors);
+        }
         // find video with videoID
         user.videos.forEach(video => {
           if (videoID === video.id) {
@@ -334,7 +354,10 @@ router.delete(
 
     User.findOne({ email })
       .then(user => {
-        console.log(req.user);
+        if (!user) {
+          errors.nouser = "user doesn't exist";
+          return res.status(404).json(errors);
+        }
         const video = user.videos.forEach(video => {
           if (videoID === video.id) {
             const comments = video.comments.filter(comment => {
@@ -365,7 +388,10 @@ router.delete(
 
     User.findOne({ email })
       .then(user => {
-        console.log(req.user);
+        if (!user) {
+          errors.nouser = "user doesn't exist";
+          return res.status(404).json(errors);
+        }
         const videos = user.videos.filter(video => {
           if (videoID !== video.id) {
             return video;
