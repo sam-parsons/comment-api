@@ -30,7 +30,7 @@ require("./config/passport")(passport);
 
 // test route
 app.get("/", (req, res) => {
-  res.send("this is the server");
+  res.send("the server is running");
 });
 
 //use routes

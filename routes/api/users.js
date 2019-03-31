@@ -16,7 +16,7 @@ const validateCommentUpdateInput = require("../../validation/comment-update");
 const User = require("../../models/User");
 
 // TO-DO
-// - PUT/update routes
+// - administrator priveledges for GET /users/all
 
 // @route GET api/users/test
 // @desc Tests users route
@@ -41,6 +41,7 @@ router.post("/register", (req, res) => {
     return res.status(400).json({ errors });
   }
 
+  // if no user is found, User obj created, password encrypted
   User.findOne({ email }).then(user => {
     if (user) {
       errors.email = "Email already exists";
@@ -51,6 +52,7 @@ router.post("/register", (req, res) => {
         password
       });
 
+      // encryption
       bcrypt.genSalt(10, (err, salt) => {
         bcrypt.hash(newUser.password, salt, (err, hash) => {
           if (err) throw err;
@@ -192,6 +194,8 @@ router.get(
           errors.nouser = "user doesn't exist";
           return res.status(404).json(errors);
         }
+
+        // find a video by matching IDs
         const video = user.videos.filter(video => {
           return video.id === videoID;
         });
@@ -219,9 +223,13 @@ router.get(
           errors.nouser = "user doesn't exist";
           return res.status(404).json(errors);
         }
+
+        // find a video by matching IDs
         const video = user.videos.filter(video => {
           return video.id === videoID;
         });
+
+        // find a comment by matching IDs
         const comments = video[0].comments;
         const comment = comments.filter(comment => {
           if (comment.id.toString() === commentID) return comment;
@@ -267,23 +275,20 @@ router.post(
   (req, res) => {
     const { errors, isValid } = validateVideoInput(req.body);
 
-    // check validation
     if (!isValid) {
-      // return any errors with 400 status
       return res.status(400).json(errors);
     }
 
     const email = req.user.email;
 
-    // find user by email
     User.findOne({ email })
       .then(user => {
-        // check for user
         if (!user) {
           errors.email = "user not found";
           return res.status(404).json(errors);
         }
 
+        // push a video tag to videos array, automatically created _id and comments array properties
         user.videos.push({
           videoTag: req.body.videoTag
         });
@@ -308,7 +313,6 @@ router.post(
   (req, res) => {
     const { errors, isValid } = validateCommentInput(req.body);
 
-    // check validation
     if (!isValid) {
       return res.status(400).json(errors);
     }
@@ -316,14 +320,13 @@ router.post(
     const email = req.user.email;
     const videoID = req.params.videoID;
 
-    // find user by email
     User.findOne({ email })
       .then(user => {
         if (!user) {
           errors.nouser = "user doesn't exist";
           return res.status(404).json(errors);
         }
-        // find video with videoID
+        // find video with videoID, push timestamp and message into comments array
         user.videos.forEach(video => {
           if (videoID === video.id) {
             video.comments.push({
@@ -357,6 +360,8 @@ router.delete(
           errors.nouser = "user doesn't exist";
           return res.status(404).json(errors);
         }
+
+        // find the video, then create a new array without the comment with commentID
         user.videos.forEach(video => {
           if (videoID === video.id) {
             const comments = video.comments.filter(
@@ -389,6 +394,8 @@ router.delete(
           errors.nouser = "user doesn't exist";
           return res.status(404).json(errors);
         }
+
+        // create a new array of videos that don't match videoID
         const videos = user.videos.filter(video => videoID !== video.id);
         user.videos = videos;
         user.save();
@@ -437,6 +444,8 @@ router.put(
           errors.nouser = "user doesn't exist";
           return res.status(404).json(errors);
         }
+
+        // find the video, then the comment, and replace its message property
         user.videos.forEach(video => {
           if (videoID === video.id) {
             const comment = video.comments.filter(
