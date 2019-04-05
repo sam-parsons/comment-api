@@ -297,7 +297,8 @@ router.post(
         res.json({
           id: user.id,
           email: user.email,
-          videoTag: user.videos[user.videos.length - 1].videoTag
+          videoTag: user.videos[user.videos.length - 1].videoTag,
+          success: true
         });
       })
       .catch(err => res.status(err));
@@ -420,7 +421,7 @@ router.delete(
 );
 
 // @route PUT api/users/comment/:videoID/:commentID
-// @desc updating message property of comment by IDs
+// @desc updating message property of comment by ID
 // @access Private
 router.put(
   "/comment/:videoID/:commentID",
