@@ -6,8 +6,8 @@ module.exports = function validateVideoInput(data) {
 
   data.videoTag = !isEmpty(data.videoTag) ? data.videoTag : "";
 
-  if (!Validator.isLength(data.videoTag, { min: 2, max: 4 })) {
-    errors.videoTag = "videoTag must be between 2 and 4 characters";
+  if (!Validator.isLength(data.videoTag, { min: 2, max: 40 })) {
+    errors.videoTag = "videoTag must be between 2 and 40 characters";
   }
   if (Validator.isEmpty(data.videoTag)) {
     errors.videoTag = "videoTag required";
